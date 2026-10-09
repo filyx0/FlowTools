@@ -78,6 +78,61 @@ namespace
         std::uint64_t bytes = 0;
     };
 
+    namespace ui
+    {
+        constexpr std::string_view RESET = "\x1b[0m";
+        constexpr std::string_view BOLD = "\x1b[1m";
+
+        constexpr std::string_view BG_AUBERGINE = "\x1b[48;2;119;33;111m";
+        constexpr std::string_view BG_DARK_AUBERGINE = "\x1b[48;2;60;16;50m";
+        constexpr std::string_view BG_SELECT = "\x1b[48;2;119;33;111m";
+        constexpr std::string_view BG_GREEN = "\x1b[48;2;56;180;74m";
+        constexpr std::string_view BG_ORANGE = "\x1b[48;2;233;84;32m";
+
+        constexpr std::string_view FG_PURPLE = "\x1b[38;2;119;33;111m";
+        constexpr std::string_view FG_BRIGHT_PURPLE = "\x1b[38;2;175;65;165m";
+        constexpr std::string_view FG_LILAC = "\x1b[38;2;205;135;200m";
+        constexpr std::string_view FG_ORANGE = "\x1b[38;2;233;84;32m";
+        constexpr std::string_view FG_GREEN = "\x1b[38;2;56;180;74m";
+        constexpr std::string_view FG_RED = "\x1b[38;2;223;56;56m";
+        constexpr std::string_view FG_WHITE = "\x1b[38;2;255;255;255m";
+        constexpr std::string_view FG_WARM_GREY = "\x1b[38;2;174;167;159m";
+        constexpr std::string_view FG_COOL_GREY = "\x1b[38;2;120;115;110m";
+
+        constexpr std::string_view BOX_H = "\xE2\x94\x80";
+        constexpr std::string_view BOX_V = "\xE2\x94\x82";
+        constexpr std::string_view BOX_TL = "\xE2\x94\x8C";
+        constexpr std::string_view BOX_TR = "\xE2\x94\x90";
+        constexpr std::string_view BOX_BL = "\xE2\x94\x94";
+        constexpr std::string_view BOX_BR = "\xE2\x94\x98";
+        constexpr std::string_view BOX_ML = "\xE2\x94\x9C";
+        constexpr std::string_view BOX_MR = "\xE2\x94\xA4";
+        constexpr std::string_view SYM_BLOCK = "\xE2\x96\x88";
+        constexpr std::string_view SYM_TRACK = "\xE2\x96\x91";
+        constexpr std::string_view SYM_ARROW = "\xE2\x96\xB6";
+        constexpr std::string_view SYM_DIAMOND = "\xE2\x97\x88";
+        constexpr std::string_view SYM_UP = "\xE2\x86\x91";
+        constexpr std::string_view SYM_DOWN = "\xE2\x86\x93";
+
+        constexpr int CARD_WIDTH = 68;
+        constexpr int INNER_WIDTH = 64;
+    }
+
+    void init_terminal()
+    {
+        HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
+        if (console != INVALID_HANDLE_VALUE)
+        {
+            DWORD mode = 0;
+            if (GetConsoleMode(console, &mode))
+            {
+                SetConsoleMode(console, mode | 0x0004);
+            }
+        }
+        SetConsoleOutputCP(CP_UTF8);
+        SetConsoleCP(CP_UTF8);
+    }
+
     void clear_screen()
     {
         HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -120,6 +175,8 @@ namespace
             console,
             origin
         );
+
+        std::cout << "\x1b[0m\x1b[H" << std::flush;
     }
 
     void set_cursor_visible(bool visible)
@@ -192,38 +249,144 @@ namespace
         }
     }
 
-    void wait_for_enter()
+    void print_card_top(std::string_view title = {})
     {
-        set_cursor_visible(true);
+        std::cout << "  " << ui::FG_BRIGHT_PURPLE << ui::BOX_TL;
+        for (int i = 0; i < ui::CARD_WIDTH - 2; ++i)
+            std::cout << ui::BOX_H;
+        std::cout << ui::BOX_TR << ui::RESET << '\n';
+
+        if (!title.empty())
+        {
+            std::cout
+                << "  " << ui::FG_BRIGHT_PURPLE << ui::BOX_V << " " << ui::RESET
+                << ui::FG_ORANGE << ui::BOLD << ui::SYM_DIAMOND << " " << ui::RESET
+                << ui::FG_WHITE << ui::BOLD << title << ui::RESET;
+
+            const int used = 2 + static_cast<int>(title.size());
+            const int pad = ui::INNER_WIDTH - used;
+            if (pad > 0)
+                std::cout << std::string(pad, ' ');
+
+            std::cout << " " << ui::FG_BRIGHT_PURPLE << ui::BOX_V << ui::RESET << '\n';
+
+            std::cout << "  " << ui::FG_BRIGHT_PURPLE << ui::BOX_ML;
+            for (int i = 0; i < ui::CARD_WIDTH - 2; ++i)
+                std::cout << ui::BOX_H;
+            std::cout << ui::BOX_MR << ui::RESET << '\n';
+        }
+    }
+
+    void print_card_line(std::string_view content, int visible_len)
+    {
+        std::cout
+            << "  " << ui::FG_BRIGHT_PURPLE << ui::BOX_V << " " << ui::RESET
+            << content;
+        const int pad = ui::INNER_WIDTH - visible_len;
+        if (pad > 0)
+            std::cout << std::string(pad, ' ');
+        std::cout
+            << " " << ui::FG_BRIGHT_PURPLE << ui::BOX_V << ui::RESET << '\n';
+    }
+
+    void print_card_empty_line()
+    {
+        std::cout
+            << "  " << ui::FG_BRIGHT_PURPLE << ui::BOX_V << " " << ui::RESET
+            << std::string(ui::INNER_WIDTH, ' ')
+            << " " << ui::FG_BRIGHT_PURPLE << ui::BOX_V << ui::RESET << '\n';
+    }
+
+    void print_card_bottom()
+    {
+        std::cout << "  " << ui::FG_BRIGHT_PURPLE << ui::BOX_BL;
+        for (int i = 0; i < ui::CARD_WIDTH - 2; ++i)
+            std::cout << ui::BOX_H;
+        std::cout << ui::BOX_BR << ui::RESET << '\n';
+    }
+
+    void print_card_footer()
+    {
+        std::cout << "  " << ui::FG_BRIGHT_PURPLE << ui::BOX_ML;
+        for (int i = 0; i < ui::CARD_WIDTH - 2; ++i)
+            std::cout << ui::BOX_H;
+        std::cout << ui::BOX_MR << ui::RESET << '\n';
 
         std::cout
-            << "\nPress ENTER to continue...";
+            << "  " << ui::FG_BRIGHT_PURPLE << ui::BOX_V << " " << ui::RESET
+            << " "
+            << ui::FG_ORANGE << ui::BOLD << "[" << ui::SYM_UP << "/" << ui::SYM_DOWN << "]" << ui::RESET
+            << " " << ui::FG_WHITE << "Navigate" << ui::RESET
+            << "    "
+            << ui::FG_ORANGE << ui::BOLD << "[ENTER]" << ui::RESET
+            << " " << ui::FG_WHITE << "Select" << ui::RESET
+            << "    "
+            << ui::FG_ORANGE << ui::BOLD << "[ESC]" << ui::RESET
+            << " " << ui::FG_WHITE << "Back" << ui::RESET;
 
-        while (read_key() != Key::Enter)
-        {
-        }
+        constexpr int visible_footer = 47;
+        constexpr int pad = ui::INNER_WIDTH - visible_footer;
+        if constexpr (pad > 0)
+            std::cout << std::string(pad, ' ');
 
-        set_cursor_visible(false);
+        std::cout << " " << ui::FG_BRIGHT_PURPLE << ui::BOX_V << ui::RESET << '\n';
+
+        print_card_bottom();
     }
 
     void print_header()
     {
+        const std::string version_str = std::string("v") + FLOW_VERSION;
+        const std::string title = "FLOWTOOLS PACKAGE MANAGER";
+        const int spaces = ui::CARD_WIDTH - static_cast<int>(title.size()) - static_cast<int>(version_str.size()) - 4;
+        const int safe_spaces = spaces > 0 ? spaces : 2;
+
         std::cout
-            << "+----------------------------------------------------------+\n"
-            << "|                       FLOWTOOLS                          |\n"
-            << "|                  Package Manager "
-            << FLOW_VERSION
-            << "                    |\n"
-            << "+----------------------------------------------------------+\n";
+            << "\n  "
+            << ui::BG_AUBERGINE << ui::FG_WHITE << ui::BOLD
+            << "  " << title
+            << std::string(safe_spaces, ' ')
+            << version_str << "  "
+            << ui::RESET
+            << "\n";
     }
 
     void print_footer()
     {
         std::cout
-            << "\n"
-            << "[UP/DOWN] Navigate    "
-            << "[ENTER] Select    "
-            << "[ESC] Back\n";
+            << "\n  "
+            << ui::FG_ORANGE << ui::BOLD << "[" << ui::SYM_UP << "/" << ui::SYM_DOWN << "]" << ui::RESET
+            << " " << ui::FG_WHITE << "Navigate" << ui::RESET
+            << "    "
+            << ui::FG_ORANGE << ui::BOLD << "[ENTER]" << ui::RESET
+            << " " << ui::FG_WHITE << "Select" << ui::RESET
+            << "    "
+            << ui::FG_ORANGE << ui::BOLD << "[ESC]" << ui::RESET
+            << " " << ui::FG_WHITE << "Back" << ui::RESET
+            << "\n";
+    }
+
+    void wait_for_enter()
+    {
+        set_cursor_visible(false);
+
+        std::cout
+            << "\n  "
+            << ui::BG_AUBERGINE << ui::FG_WHITE << ui::BOLD
+            << "  [  Done  ]  "
+            << ui::RESET
+            << "  "
+            << ui::FG_WARM_GREY
+            << "Press "
+            << ui::FG_ORANGE << ui::BOLD << "[ENTER]" << ui::RESET
+            << ui::FG_WARM_GREY
+            << " to continue..."
+            << ui::RESET
+            << "\n\n";
+
+        while (read_key() != Key::Enter)
+        {
+        }
     }
 
     std::string wide_to_utf8(std::wstring_view value)
@@ -1049,7 +1212,7 @@ namespace
         std::uint64_t current,
         std::uint64_t total)
     {
-        constexpr int width = 30;
+        constexpr int width = 28;
 
         int percent = 0;
 
@@ -1068,21 +1231,26 @@ namespace
 
         std::cout
             << '\r'
-            << "  Downloading [";
+            << "  "
+            << ui::FG_LILAC << ui::BOLD << "Downloading " << ui::RESET
+            << ui::FG_BRIGHT_PURPLE << "[" << ui::RESET;
 
         for (int i = 0; i < width; ++i)
         {
             if (i < filled)
-                std::cout << '#';
+                std::cout << ui::FG_ORANGE << ui::SYM_BLOCK;
             else
-                std::cout << '-';
+                std::cout << ui::FG_PURPLE << ui::SYM_TRACK;
         }
 
         std::cout
-            << "] "
+            << ui::FG_BRIGHT_PURPLE << "] " << ui::RESET
+            << ui::FG_WHITE << ui::BOLD
             << std::setw(3)
             << percent
             << "% "
+            << ui::RESET
+            << ui::FG_WARM_GREY
             << format_bytes(current);
 
         if (total > 0)
@@ -1093,6 +1261,7 @@ namespace
         }
 
         std::cout
+            << ui::RESET
             << "   "
             << std::flush;
     }
@@ -2002,9 +2171,11 @@ namespace
                 DATA_FILE,
                 tools))
         {
-            std::cout
-                << "\nUnable to read data.json.\n";
-
+            print_card_top("ERROR");
+            print_card_empty_line();
+            print_card_line(std::string("  ") + std::string(ui::FG_RED) + "Unable to read data.json." + std::string(ui::RESET), 27);
+            print_card_empty_line();
+            print_card_bottom();
             wait_for_enter();
             return;
         }
@@ -2018,8 +2189,27 @@ namespace
             }
         );
 
-        std::cout
-            << "\nPackages\n\n";
+        print_card_top("PACKAGES");
+        print_card_empty_line();
+
+        {
+            std::ostringstream ss;
+            ss << "  "
+               << ui::FG_LILAC << ui::BOLD << std::setw(16) << std::left << "PACKAGE"
+               << std::setw(14) << std::left << "VERSION"
+               << "STATUS"
+               << ui::RESET;
+            print_card_line(ss.str(), 38);
+        }
+
+        {
+            std::string div(ui::INNER_WIDTH - 4, '-');
+            std::ostringstream ss;
+            ss << "  " << ui::FG_PURPLE << div << ui::RESET;
+            print_card_line(ss.str(), 2 + static_cast<int>(div.size()));
+        }
+
+        std::size_t installed_count = 0;
 
         for (const Tool& tool : tools)
         {
@@ -2028,24 +2218,55 @@ namespace
                     tool.name
                 );
 
-            std::cout
-                << "  "
-                << tool.name
-                << "  "
-                << tool.version
-                << "  ";
+            const bool is_installed = !version.empty();
+            if (is_installed)
+                ++installed_count;
 
-            if (!version.empty())
-                std::cout
-                    << "[installed "
-                    << version
-                    << "]";
+            std::ostringstream ss;
+            ss << "  "
+               << ui::FG_WHITE << ui::BOLD << std::setw(16) << std::left << tool.name << ui::RESET
+               << ui::FG_WARM_GREY << std::setw(14) << std::left << tool.version << ui::RESET;
+
+            int status_len = 0;
+            if (is_installed)
+            {
+                ss << ui::BG_GREEN << ui::FG_WHITE << ui::BOLD << " INSTALLED " << ui::RESET
+                   << " " << ui::FG_GREEN << "v" << version << ui::RESET;
+                status_len = 11 + 2 + static_cast<int>(version.size());
+            }
             else
-                std::cout
-                    << "[available]";
+            {
+                ss << ui::BG_DARK_AUBERGINE << ui::FG_WARM_GREY << " AVAILABLE " << ui::RESET;
+                status_len = 11;
+            }
 
-            std::cout << '\n';
+            const int visible = 2 + 16 + 14 + status_len;
+            print_card_line(ss.str(), visible);
         }
+
+        print_card_empty_line();
+
+        {
+            std::string div(ui::INNER_WIDTH - 4, '-');
+            std::ostringstream ss;
+            ss << "  " << ui::FG_PURPLE << div << ui::RESET;
+            print_card_line(ss.str(), 2 + static_cast<int>(div.size()));
+        }
+
+        {
+            std::ostringstream ss;
+            ss << "  "
+               << ui::FG_WARM_GREY << "Total: " << ui::FG_WHITE << ui::BOLD << tools.size() << ui::RESET
+               << ui::FG_WARM_GREY << " packages   "
+               << ui::FG_WARM_GREY << "Installed: " << ui::FG_GREEN << ui::BOLD << installed_count << ui::RESET
+               << ui::FG_WARM_GREY << "   Available: " << ui::FG_ORANGE << ui::BOLD << (tools.size() - installed_count) << ui::RESET;
+
+            const std::string plain = "  Total: " + std::to_string(tools.size()) + " packages   Installed: " + std::to_string(installed_count) + "   Available: " + std::to_string(tools.size() - installed_count);
+            print_card_line(ss.str(), static_cast<int>(plain.size()));
+        }
+
+        print_card_empty_line();
+        print_card_bottom();
 
         wait_for_enter();
     }
@@ -2068,6 +2289,11 @@ namespace
                 DATA_FILE,
                 tools))
         {
+            print_card_top("ERROR");
+            print_card_empty_line();
+            print_card_line(std::string("  ") + std::string(ui::FG_RED) + "Unable to read data.json." + std::string(ui::RESET), 27);
+            print_card_empty_line();
+            print_card_bottom();
             wait_for_enter();
             return;
         }
@@ -2079,11 +2305,12 @@ namespace
                 name,
                 tool))
         {
-            std::cout
-                << "\nPackage not found: "
-                << name
-                << "\n";
-
+            print_card_top("PACKAGE NOT FOUND");
+            print_card_empty_line();
+            std::string msg = "  Package not found: " + name;
+            print_card_line(std::string(ui::FG_RED) + msg + std::string(ui::RESET), static_cast<int>(msg.size()));
+            print_card_empty_line();
+            print_card_bottom();
             wait_for_enter();
             return;
         }
@@ -2091,28 +2318,57 @@ namespace
         const std::string installed =
             installed_version(name);
 
-        std::cout
-            << "\nName       : "
-            << tool.name
-            << "\nVersion    : "
-            << tool.version
-            << "\nInstalled  : "
-            << (installed.empty()
-                    ? "no"
-                    : installed)
-            << "\nFile       : "
-            << tool.file
-            << "\nPath       : "
-            << tool.path
-            << "\nSize       : "
-            << format_bytes(tool.size)
-            << "\nSHA-256    : "
-            << (
-                tool.sha256.empty()
-                    ? "not provided"
-                    : tool.sha256
-            )
-            << "\n";
+        print_card_top("PACKAGE: " + tool.name);
+        print_card_empty_line();
+
+        auto print_field = [](std::string_view label, std::string_view value, std::string_view val_color = ui::FG_WHITE)
+        {
+            std::ostringstream ss;
+            ss << "  "
+               << ui::FG_LILAC << ui::BOLD << std::setw(14) << std::left << label << ui::RESET
+               << ui::FG_COOL_GREY << ": " << ui::RESET
+               << val_color << value << ui::RESET;
+            int visible = 2 + 14 + 2 + static_cast<int>(value.size());
+            print_card_line(ss.str(), visible);
+        };
+
+        print_field("Name", tool.name);
+        print_field("Version", tool.version);
+
+        {
+            std::ostringstream ss;
+            ss << "  "
+               << ui::FG_LILAC << ui::BOLD << std::setw(14) << std::left << "Status" << ui::RESET
+               << ui::FG_COOL_GREY << ": " << ui::RESET;
+
+            int status_len = 0;
+            if (!installed.empty())
+            {
+                ss << ui::BG_GREEN << ui::FG_WHITE << ui::BOLD << " INSTALLED " << ui::RESET
+                   << " " << ui::FG_GREEN << "v" << installed << ui::RESET;
+                status_len = 11 + 2 + static_cast<int>(installed.size());
+            }
+            else
+            {
+                ss << ui::BG_DARK_AUBERGINE << ui::FG_WARM_GREY << " NOT INSTALLED " << ui::RESET;
+                status_len = 15;
+            }
+
+            int visible = 2 + 14 + 2 + status_len;
+            print_card_line(ss.str(), visible);
+        }
+
+        print_field("File", tool.file);
+        print_field("Path", tool.path);
+        print_field("Size", format_bytes(tool.size));
+
+        std::string sha = tool.sha256.empty() ? "not provided" : tool.sha256;
+        if (sha.size() > 40)
+            sha = sha.substr(0, 37) + "...";
+        print_field("SHA-256", sha, tool.sha256.empty() ? ui::FG_WARM_GREY : ui::FG_WHITE);
+
+        print_card_empty_line();
+        print_card_bottom();
 
         wait_for_enter();
     }
@@ -2252,10 +2508,36 @@ namespace
         clear_screen();
         print_header();
 
-        std::cout
-            << "\nInstall a tool\n\n"
-            << "Use:\n"
-            << "  flow install <tool>\n";
+        print_card_top("INSTALL A TOOL");
+        print_card_empty_line();
+        print_card_line("  To install a package, execute from the terminal:", 50);
+        print_card_empty_line();
+
+        {
+            std::ostringstream ss;
+            ss << "    "
+               << ui::BG_DARK_AUBERGINE << ui::FG_ORANGE << ui::BOLD
+               << "  flow install <tool>  "
+               << ui::RESET;
+            print_card_line(ss.str(), 27);
+        }
+
+        print_card_empty_line();
+        print_card_line("  Example:", 10);
+
+        {
+            std::ostringstream ss;
+            ss << "    "
+               << ui::FG_LILAC << ui::BOLD
+               << "flow install fsize"
+               << ui::RESET;
+            print_card_line(ss.str(), 22);
+        }
+
+        print_card_empty_line();
+        print_card_line("  Choose 'Installed tools' to see all packages.", 47);
+        print_card_empty_line();
+        print_card_bottom();
 
         wait_for_enter();
     }
@@ -2265,10 +2547,34 @@ namespace
         clear_screen();
         print_header();
 
-        std::cout
-            << "\nUninstall a tool\n\n"
-            << "Use:\n"
-            << "  flow uninstall <tool>\n";
+        print_card_top("UNINSTALL A TOOL");
+        print_card_empty_line();
+        print_card_line("  To uninstall a package, execute from the terminal:", 52);
+        print_card_empty_line();
+
+        {
+            std::ostringstream ss;
+            ss << "    "
+               << ui::BG_DARK_AUBERGINE << ui::FG_ORANGE << ui::BOLD
+               << "  flow uninstall <tool>  "
+               << ui::RESET;
+            print_card_line(ss.str(), 29);
+        }
+
+        print_card_empty_line();
+        print_card_line("  Example:", 10);
+
+        {
+            std::ostringstream ss;
+            ss << "    "
+               << ui::FG_LILAC << ui::BOLD
+               << "flow uninstall fsize"
+               << ui::RESET;
+            print_card_line(ss.str(), 24);
+        }
+
+        print_card_empty_line();
+        print_card_bottom();
 
         wait_for_enter();
     }
@@ -2285,27 +2591,55 @@ namespace
         };
 
         std::size_t selected = 0;
+        clear_screen();
 
         while (true)
         {
-            clear_screen();
+            std::cout << "\x1b[H" << std::flush;
             print_header();
-
-            std::cout << '\n';
+            print_card_top("UPDATE OPTIONS");
+            print_card_empty_line();
 
             for (std::size_t i = 0;
                  i < options.size();
                  ++i)
             {
                 std::cout
-                    << (i == selected
-                            ? "  > "
-                            : "    ")
-                    << options[i]
-                    << '\n';
+                    << "  " << ui::FG_BRIGHT_PURPLE << ui::BOX_V << " " << ui::RESET;
+
+                if (i == selected)
+                {
+                    std::cout
+                        << ui::BG_SELECT << ui::BOLD
+                        << "  "
+                        << ui::FG_ORANGE << ui::SYM_ARROW << "  "
+                        << ui::FG_WHITE << options[i];
+
+                    const int used = 5 + static_cast<int>(options[i].size());
+                    const int pad = ui::INNER_WIDTH - used;
+                    if (pad > 0)
+                        std::cout << std::string(pad, ' ');
+
+                    std::cout << ui::RESET;
+                }
+                else
+                {
+                    std::cout
+                        << "     "
+                        << ui::FG_WHITE << options[i] << ui::RESET;
+
+                    const int used = 5 + static_cast<int>(options[i].size());
+                    const int pad = ui::INNER_WIDTH - used;
+                    if (pad > 0)
+                        std::cout << std::string(pad, ' ');
+                }
+
+                std::cout
+                    << " " << ui::FG_BRIGHT_PURPLE << ui::BOX_V << ui::RESET << '\n';
             }
 
-            print_footer();
+            print_card_empty_line();
+            print_card_footer();
 
             const Key key = read_key();
 
@@ -2335,6 +2669,7 @@ namespace
                     update_manifest();
                     update_all();
                     wait_for_enter();
+                    clear_screen();
                 }
                 else if (selected == 1)
                 {
@@ -2344,6 +2679,7 @@ namespace
                     update_flow();
                     update_libs();
                     wait_for_enter();
+                    clear_screen();
                 }
                 else if (selected == 2)
                 {
@@ -2352,17 +2688,28 @@ namespace
                     update_manifest();
                     update_all();
                     wait_for_enter();
+                    clear_screen();
                 }
                 else if (selected == 3)
                 {
                     clear_screen();
                     print_header();
-
-                    std::cout
-                        << "\nSpecific tool update is available from:\n"
-                        << "  flow update <tool>\n";
-
+                    print_card_top("UPDATE A TOOL");
+                    print_card_empty_line();
+                    print_card_line("  To update a specific tool, execute from the terminal:", 56);
+                    print_card_empty_line();
+                    {
+                        std::ostringstream ss;
+                        ss << "    "
+                           << ui::BG_DARK_AUBERGINE << ui::FG_ORANGE << ui::BOLD
+                           << "  flow update <tool>  "
+                           << ui::RESET;
+                        print_card_line(ss.str(), 26);
+                    }
+                    print_card_empty_line();
+                    print_card_bottom();
                     wait_for_enter();
+                    clear_screen();
                 }
                 else
                 {
@@ -2383,42 +2730,56 @@ namespace
             &info
         );
 
-        std::cout
-            << "\nSystem information\n\n"
-            << "Flow version : "
-            << FLOW_VERSION
-            << "\n"
-            << "Core version : "
-            << flow::core::version()
-            << "\n"
-            << "Architecture : ";
-
+        std::string arch = "Unknown";
         switch (info.wProcessorArchitecture)
         {
         case PROCESSOR_ARCHITECTURE_AMD64:
-            std::cout << "x64";
+            arch = "x64 (AMD64)";
             break;
 
         case PROCESSOR_ARCHITECTURE_ARM64:
-            std::cout << "ARM64";
+            arch = "ARM64";
             break;
 
         case PROCESSOR_ARCHITECTURE_INTEL:
-            std::cout << "x86";
+            arch = "x86 (32-bit)";
             break;
 
         default:
-            std::cout << "Unknown";
             break;
         }
 
-        std::cout << '\n';
+        print_card_top("SYSTEM INFORMATION");
+        print_card_empty_line();
+
+        auto print_field = [](std::string_view label, std::string_view value)
+        {
+            std::ostringstream ss;
+            ss << "  "
+               << ui::FG_LILAC << ui::BOLD << std::setw(16) << std::left << label << ui::RESET
+               << ui::FG_COOL_GREY << ": " << ui::RESET
+               << ui::FG_WHITE << value << ui::RESET;
+            int visible = 2 + 16 + 2 + static_cast<int>(value.size());
+            print_card_line(ss.str(), visible);
+        };
+
+        print_field("Flow Version", FLOW_VERSION);
+        print_field("Core Version", std::string(flow::core::version()));
+        print_field("Architecture", arch);
+        print_field("Install Path", FLOWTOOLS_DIRECTORY.string());
+        print_field("Binaries Path", BIN_DIRECTORY.string());
+
+        print_card_empty_line();
+        print_card_bottom();
 
         wait_for_enter();
     }
 
     void main_menu()
     {
+        init_terminal();
+        set_cursor_visible(false);
+
         const std::vector<std::string> options =
         {
             "Install a tool",
@@ -2430,29 +2791,55 @@ namespace
         };
 
         std::size_t selected = 0;
-
-        set_cursor_visible(false);
+        clear_screen();
 
         while (true)
         {
-            clear_screen();
+            std::cout << "\x1b[H" << std::flush;
             print_header();
-
-            std::cout << '\n';
+            print_card_top("MAIN MENU");
+            print_card_empty_line();
 
             for (std::size_t i = 0;
                  i < options.size();
                  ++i)
             {
                 std::cout
-                    << (i == selected
-                            ? "  > "
-                            : "    ")
-                    << options[i]
-                    << '\n';
+                    << "  " << ui::FG_BRIGHT_PURPLE << ui::BOX_V << " " << ui::RESET;
+
+                if (i == selected)
+                {
+                    std::cout
+                        << ui::BG_SELECT << ui::BOLD
+                        << "  "
+                        << ui::FG_ORANGE << ui::SYM_ARROW << "  "
+                        << ui::FG_WHITE << options[i];
+
+                    const int used = 5 + static_cast<int>(options[i].size());
+                    const int pad = ui::INNER_WIDTH - used;
+                    if (pad > 0)
+                        std::cout << std::string(pad, ' ');
+
+                    std::cout << ui::RESET;
+                }
+                else
+                {
+                    std::cout
+                        << "     "
+                        << ui::FG_WHITE << options[i] << ui::RESET;
+
+                    const int used = 5 + static_cast<int>(options[i].size());
+                    const int pad = ui::INNER_WIDTH - used;
+                    if (pad > 0)
+                        std::cout << std::string(pad, ' ');
+                }
+
+                std::cout
+                    << " " << ui::FG_BRIGHT_PURPLE << ui::BOX_V << ui::RESET << '\n';
             }
 
-            print_footer();
+            print_card_empty_line();
+            print_card_footer();
 
             const Key key = read_key();
 
@@ -2475,26 +2862,33 @@ namespace
             }
             else if (key == Key::Enter)
             {
+                clear_screen();
+
                 switch (selected)
                 {
                 case 0:
                     install_screen();
+                    clear_screen();
                     break;
 
                 case 1:
                     update_screen();
+                    clear_screen();
                     break;
 
                 case 2:
                     show_list();
+                    clear_screen();
                     break;
 
                 case 3:
                     uninstall_screen();
+                    clear_screen();
                     break;
 
                 case 4:
                     system_information();
+                    clear_screen();
                     break;
 
                 case 5:
@@ -2513,6 +2907,8 @@ namespace
         int argc,
         char* argv[])
     {
+        init_terminal();
+
         if (argc == 1)
         {
             main_menu();
