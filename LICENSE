@@ -1,0 +1,156 @@
+CUSTOM PROPRIETARY SOFTWARE LICENSE
+ALL RIGHTS RESERVED
+
+Copyright (c) 2026 openReact. All rights reserved.
+
+1. DEFINITIONS
+
+For the purposes of this License:
+
+"Software" means the source code, object code, scripts, configuration files, documentation, assets, and other materials distributed as part of this project, to the extent owned or controlled by the Copyright Holder.
+
+"Copyright Holder" means the person or legal entity that owns or is authorized to license the applicable rights in the Software.
+
+"User" means any individual or entity accessing, downloading, building, running, or modifying the Software.
+
+"Modified Version" means any version of the Software that has been altered, adapted, translated, supplemented, or otherwise changed.
+
+"Distribution" means making the Software or a copy of it available to another person or to the public, including through source-code hosting platforms, package registries, downloadable archives, application stores, websites, or other distribution channels.
+
+2. OWNERSHIP AND RESERVATION OF RIGHTS
+
+The Software is proprietary software and is not released under an open-source license.
+
+Except for the limited permissions expressly granted by this License, all rights, title, and interest in and to the Software remain with the respective copyright owners.
+
+No rights are granted by implication, estoppel, or otherwise. All rights not expressly granted are reserved.
+
+Nothing in this License transfers ownership of the Software to the User.
+
+3. LIMITED PERMISSION TO USE
+
+Subject to compliance with this License, the Copyright Holder grants the User a limited, non-exclusive, worldwide, non-transferable, non-sublicensable, and revocable license to:
+
+(a) Download and store copies of the Software for personal and educational purposes.
+
+(b) Read, inspect, and study the source code.
+
+(c) Compile, build, execute, and test the Software.
+
+(d) Modify the Software for personal and educational purposes.
+
+(e) Create and maintain private Modified Versions.
+
+These permissions are granted solely for the activities expressly listed above. They do not authorize public redistribution, publication, sublicensing, or commercial exploitation of the Software.
+
+4. RESTRICTIONS
+
+Unless the Copyright Holder has given prior express written permission, the User must not, to the extent permitted by applicable law:
+
+(a) Publish, upload, distribute, redistribute, mirror, or otherwise make available the Software or any portion of it outside the permissions expressly granted by this License.
+
+(b) Publish, distribute, or make publicly available any Modified Version, derivative work, adaptation, or substantial portion of the Software.
+
+(c) Upload or reproduce the Software or Modified Versions in another public repository, including a fork, mirror, or alternative source-code hosting service.
+
+(d) Sell, rent, lease, sublicense, commercially exploit, or otherwise transfer the Software or rights in it to third parties.
+
+(e) Claim to be the original author, creator, or copyright owner of the Software, or knowingly make false or misleading statements regarding its authorship or ownership.
+
+(f) Remove, alter, conceal, or falsify copyright notices, license notices, or other proprietary notices included in the Software.
+
+(g) Use the Copyright Holder's name, trademarks, logos, or other identifying marks in a manner that falsely suggests endorsement, affiliation, or authorization.
+
+(h) Circumvent technical access controls or other lawful restrictions applied to the Software.
+
+The restrictions in this section do not prohibit activities that cannot lawfully be prohibited under applicable mandatory law.
+
+5. ATTRIBUTION AND ACKNOWLEDGMENT
+
+The User must not misrepresent the origin or authorship of the Software.
+
+Any permitted private copy or Modified Version must retain applicable copyright and license notices present in the original materials, where reasonably practicable and legally permissible.
+
+Attribution does not, by itself, grant permission to publish, distribute, or otherwise exploit the Software.
+
+The mere fact that a User has modified, compiled, or built the Software does not confer ownership of the original Software or of rights belonging to the Copyright Holder.
+
+Rights in original contributions made by other persons remain subject to applicable law and any separate agreements or licenses governing those contributions.
+
+6. CONTRIBUTIONS AND THIRD-PARTY MATERIALS
+
+This License applies only to materials that the Copyright Holder owns or is authorized to license.
+
+Third-party libraries, dependencies, assets, and other materials may be governed by separate license terms. Those terms remain applicable to the relevant materials.
+
+Unless a separate written agreement provides otherwise, submitting a contribution to the project does not automatically transfer ownership of that contribution to the Copyright Holder.
+
+Contributors must ensure that they have the necessary rights to submit any material they contribute.
+
+7. NO PUBLIC REDISTRIBUTION RIGHT
+
+The availability of the Software in a public repository does not constitute permission to redistribute it outside the rights expressly granted by this License.
+
+The User acknowledges that the permissions to download, build, run, and modify the Software are distinct from permission to publish or distribute copies of it.
+
+No permission to publish a Modified Version is granted under this License.
+
+Any additional permission must be granted expressly in writing by the relevant rights holder.
+
+8. TERM AND TERMINATION
+
+This License remains effective for as long as the User exercises rights granted under it.
+
+If the User materially breaches this License, the permissions granted herein may terminate to the extent permitted by applicable law.
+
+Upon termination, the User must cease activities that are no longer authorized and comply with any applicable legal obligations concerning copies of the Software.
+
+Termination does not affect rights or remedies that have already accrued, nor does it override mandatory legal protections.
+
+9. DISCLAIMER OF WARRANTIES
+
+To the maximum extent permitted by applicable law, the Software is provided "AS IS" and "AS AVAILABLE", without warranties or conditions of any kind, whether express, implied, or statutory.
+
+To the maximum extent permitted by applicable law, the Copyright Holder disclaims implied warranties of merchantability, fitness for a particular purpose, and non-infringement.
+
+Nothing in this section excludes or limits any warranty, liability, or statutory right that cannot lawfully be excluded or limited.
+
+10. LIMITATION OF LIABILITY
+
+To the maximum extent permitted by applicable law, the Copyright Holder shall not be liable for indirect, incidental, special, exemplary, or consequential damages arising out of the use of, inability to use, or distribution of the Software.
+
+Nothing in this License excludes or limits liability where such exclusion or limitation is prohibited by applicable law, including liability that cannot legally be waived.
+
+11. APPLICABLE LAW AND JURISDICTION
+
+This License shall be interpreted in accordance with the laws applicable to the relevant parties and circumstances.
+
+Any dispute shall be submitted to the competent courts determined under applicable law.
+
+Nothing in this section excludes mandatory consumer protections or mandatory jurisdiction rules that apply by law.
+
+12. SEVERABILITY
+
+If any provision of this License is held invalid, unlawful, or unenforceable, that provision shall be interpreted or limited to the minimum extent necessary to make it enforceable, where legally possible.
+
+The remaining provisions shall continue in effect to the extent permitted by applicable law.
+
+13. NO WAIVER
+
+Failure to enforce any provision of this License shall not constitute a waiver of that provision or of any other right, unless expressly stated in writing by the relevant rights holder.
+
+14. ENTIRE LICENSE AND AMENDMENTS
+
+This License constitutes the terms governing the permissions granted by the Copyright Holder for the Software, subject to any separate written agreement and applicable law.
+
+Any additional permission or amendment issued by the Copyright Holder must be documented in writing.
+
+15. CONTACT AND PERMISSIONS
+
+Requests for additional permissions, including permission to publish, redistribute, or commercially use the Software or a Modified Version, must be directed to:
+
+Copyright Holder: openReact (c)
+
+Contact: openReact.dev@gmail.com
+
+No additional permission is granted unless expressly authorized in writing by the relevant rights holder.
